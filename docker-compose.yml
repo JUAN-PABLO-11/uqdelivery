@@ -1,0 +1,14 @@
+# Base de datos local para todo el equipo:  docker compose up -d
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: uqdelivery-db
+    environment:
+      MYSQL_DATABASE: uqdelivery
+      MYSQL_USER: uq
+      MYSQL_PASSWORD: uq123
+      MYSQL_ROOT_PASSWORD: root123
+    ports: ["3307:3306"]
+    volumes: [mysql_data:/var/lib/mysql]
+volumes:
+  mysql_data:

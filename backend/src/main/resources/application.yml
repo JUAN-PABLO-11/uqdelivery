@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: uqdelivery
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/uqdelivery}
+    username: ${SPRING_DATASOURCE_USERNAME:uq}
+    password: ${SPRING_DATASOURCE_PASSWORD:uq123}
+  jpa:
+    hibernate:
+      ddl-auto: update          # JPA crea/ajusta las tablas desde las entidades
+    open-in-view: false
+    show-sql: false
+
+server:
+  port: ${PORT:8080}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:cambiar-este-secreto-de-al-menos-32-caracteres-uqdelivery}
+    expiration-minutes: 120
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
