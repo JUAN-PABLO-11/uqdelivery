@@ -1,0 +1,19 @@
+/* HU-04: lista de envíos del cliente */
+.mis-envios__encabezado { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.mis-envios__encabezado h2 { margin: 0; }
+.mis-envios__encabezado .btn { text-decoration: none; }
+
+.mis-envios__tabla { background: #fff; border: 1px solid var(--borde); border-radius: 10px; overflow-x: auto; }
+.mis-envios table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.mis-envios th, .mis-envios td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+.mis-envios th { background: var(--primario-claro); color: var(--primario); font-weight: 600; }
+.mis-envios tbody tr:last-child td { border-bottom: 0; }
+.mis-envios .numero { text-align: right; }
+.mis-envios .codigo { font-family: ui-monospace, Menlo, monospace; font-weight: 600; }
+
+.estado { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.estado--registrado  { background: #e8f0f8; color: #1f4e78; }
+.estado--asignado    { background: #efe9fb; color: #5b3aa8; }
+.estado--en_ruta     { background: #fff4e5; color: #8a4b00; }
+.estado--con_novedad { background: #fdecea; color: #c0392b; }
+.estado--entregado   { background: #e8f5ec; color: #1e7b3c; }
