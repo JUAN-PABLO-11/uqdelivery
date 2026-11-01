@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { crearEnvio, listarZonas } from '../../api/envios';
+import { cotizar } from '../../api/cotizacion';
 import { leerError } from '../../api/client';
 import { validarEnvio, aCrearEnvio } from './validacionesEnvio';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
+import CotizacionResumen from '../../components/CotizacionResumen';
 import './NuevoEnvio.css';
 
 const VACIO = {
@@ -13,6 +15,9 @@ const VACIO = {
   zonaOrigenId: '', zonaDestinoId: '',
   pesoKg: '', altoCm: '', anchoCm: '', largoCm: '',
 };
+
+/** HU-05: campos de POST /envios/cotizar. Si cambia alguno, la cotización mostrada deja de ser válida. */
+const CAMPOS_COTIZACION = ['zonaOrigenId', 'zonaDestinoId', 'pesoKg', 'altoCm', 'anchoCm', 'largoCm'];
 
 const pesos = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
@@ -24,6 +29,8 @@ export default function NuevoEnvio() {
   const [error, setError] = useState(null);      // mensaje general de la API
   const [cargando, setCargando] = useState(false);
   const [creado, setCreado] = useState(null);    // envío que devolvió el backend
+  const [cotizacion, setCotizacion] = useState(null);       // HU-05: desglose devuelto por /cotizar
+  const [cotizando, setCotizando] = useState(false);
 
   useEffect(() => {
     listarZonas()
@@ -35,6 +42,30 @@ export default function NuevoEnvio() {
     const { name, value } = e.target;
     setDatos({ ...datos, [name]: value });
     setErrores({ ...errores, [name]: undefined });
+    if (CAMPOS_COTIZACION.includes(name)) setCotizacion(null);
+  }
+
+  /** HU-05: valida solo los campos de la cotización y consulta el valor sin crear el envío. */
+  async function onCotizar() {
+    setError(null);
+    setCotizacion(null);
+
+    const todos = validarEnvio(datos);
+    const encontrados = Object.fromEntries(CAMPOS_COTIZACION.filter((c) => todos[c]).map((c) => [c, todos[c]]));
+    setErrores(encontrados);
+    if (Object.keys(encontrados).length) return;
+
+    const { zonaOrigenId, zonaDestinoId, pesoKg, altoCm, anchoCm, largoCm } = aCrearEnvio(datos);
+    setCotizando(true);
+    try {
+      setCotizacion(await cotizar({ zonaOrigenId, zonaDestinoId, pesoKg, altoCm, anchoCm, largoCm }));
+    } catch (err) {
+      const { mensaje, campos } = leerError(err);
+      if (Object.keys(campos).length) setErrores(campos);
+      else setError(mensaje);
+    } finally {
+      setCotizando(false);
+    }
   }
 
   async function onSubmit(e) {
@@ -62,6 +93,7 @@ export default function NuevoEnvio() {
     setErrores({});
     setError(null);
     setCreado(null);
+    setCotizacion(null);
   }
 
   if (creado) {
@@ -133,9 +165,9 @@ export default function NuevoEnvio() {
           {campo('largoCm', 'Largo (cm)', medida)}
         </fieldset>
 
-        {/* HU-05: aquí van el botón "Cotizar" (api/cotizacion.js) y <CotizacionResumen cotizacion={...} />.
-            Mientras tanto, el valor final se muestra al crear el envío. */}
         <p className="muted">El valor del envío se calcula con las zonas, el peso y las medidas.</p>
+        <Button type="button" className="btn btn-secundario" cargando={cotizando} onClick={onCotizar}>Cotizar</Button>
+        <CotizacionResumen cotizacion={cotizacion} />
 
         <Button type="submit" cargando={cargando}>Crear envío</Button>
       </form>
