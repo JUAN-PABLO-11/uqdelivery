@@ -1,0 +1,7 @@
+/* HU-05: desglose de la cotización */
+.cotizacion { background: var(--primario-claro); border: 1px solid var(--borde); border-radius: 8px; padding: 12px 16px; }
+.cotizacion h3 { margin: 0 0 8px; color: var(--primario); font-size: 16px; }
+.cotizacion dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; margin: 0; }
+.cotizacion dt { color: var(--muted); }
+.cotizacion dd { margin: 0; text-align: right; }
+.cotizacion .cotizacion__total { color: var(--primario); font-weight: 700; font-size: 18px; border-top: 1px solid var(--borde); padding-top: 6px; margin-top: 4px; }
