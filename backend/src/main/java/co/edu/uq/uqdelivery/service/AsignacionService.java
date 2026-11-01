@@ -1,7 +1,9 @@
 package co.edu.uq.uqdelivery.service;
 
-import co.edu.uq.uqdelivery.dto.AsignarRequest;
-import co.edu.uq.uqdelivery.dto.ReasignarRequest;
+import co.edu.uq.uqdelivery.dto.request.AsignarRequest;
+import co.edu.uq.uqdelivery.dto.request.ReasignarRequest;
+import co.edu.uq.uqdelivery.dto.response.AdminEnvioResponse;
+import co.edu.uq.uqdelivery.dto.response.RepartidorResponse;
 import co.edu.uq.uqdelivery.exception.AppException;
 import co.edu.uq.uqdelivery.model.*;
 import co.edu.uq.uqdelivery.repository.AsignacionRepository;
@@ -12,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class AsignacionService {
 
@@ -21,7 +26,6 @@ public class AsignacionService {
     private final HistorialEstadoRepository historialRepository;
     private final EstadoService estadoService;
 
-    // Constructor para inyectar dependencias
     public AsignacionService(EnvioRepository envioRepository, UsuarioRepository usuarioRepository,
                              AsignacionRepository asignacionRepository, HistorialEstadoRepository historialRepository,
                              EstadoService estadoService) {
@@ -32,26 +36,26 @@ public class AsignacionService {
         this.estadoService = estadoService;
     }
 
+    // ==========================================
+    // MÉTODOS DEL ADMINISTRADOR (Asignar/Reasignar)
+    // ==========================================
+
     @Transactional
     public void asignarEnvio(Long envioId, AsignarRequest request, Usuario admin) {
-        // 1. Buscar el envío
         Envio envio = envioRepository.findById(envioId)
                 .orElseThrow(() -> new AppException("ENVIO_NO_ENCONTRADO", "El envío no existe", HttpStatus.NOT_FOUND));
 
-        // 2. Validar que esté REGISTRADO
         if (envio.getEstado() != EstadoEnvio.REGISTRADO) {
             throw new AppException("TRANSICION_INVALIDA", "El envío no está en estado REGISTRADO", HttpStatus.CONFLICT);
         }
 
-        // 3. Buscar y validar al repartidor
         Usuario repartidor = usuarioRepository.findById(request.repartidorId())
                 .orElseThrow(() -> new AppException("REPARTIDOR_NO_EXISTE", "El repartidor no existe", HttpStatus.NOT_FOUND));
 
-        if (repartidor.getRol() != Rol.REPARTIDOR || !repartidor.getActivo() || !repartidor.getDisponible()) {
+        if (repartidor.getRol() != Rol.REPARTIDOR || !repartidor.isActivo() || !repartidor.isDisponible()) {
             throw new AppException("REPARTIDOR_NO_DISPONIBLE", "El repartidor no está disponible o inactivo", HttpStatus.CONFLICT);
         }
 
-        // 4. Crear la asignación activa
         Asignacion asignacion = new Asignacion();
         asignacion.setEnvio(envio);
         asignacion.setRepartidor(repartidor);
@@ -60,7 +64,6 @@ public class AsignacionService {
         asignacion.setMotivo("Asignación inicial");
         asignacionRepository.save(asignacion);
 
-        // 5. Cambiar el estado del envío usando el EstadoService (Regla de oro del Sprint)
         estadoService.cambiarEstado(envio.getId(), EstadoEnvio.ASIGNADO, admin, "Asignado a " + repartidor.getNombre());
     }
 
@@ -73,7 +76,6 @@ public class AsignacionService {
             throw new AppException("TRANSICION_INVALIDA", "Solo se pueden reasignar envíos en estado ASIGNADO", HttpStatus.CONFLICT);
         }
 
-        // Buscar la asignación actual
         Asignacion asignacionActual = asignacionRepository.findByEnvioIdAndActivaTrue(envioId)
                 .orElseThrow(() -> new AppException("ASIGNACION_NO_ENCONTRADA", "No hay una asignación activa", HttpStatus.NOT_FOUND));
 
@@ -84,15 +86,13 @@ public class AsignacionService {
         Usuario nuevoRepartidor = usuarioRepository.findById(request.repartidorId())
                 .orElseThrow(() -> new AppException("REPARTIDOR_NO_EXISTE", "El repartidor no existe", HttpStatus.NOT_FOUND));
 
-        if (nuevoRepartidor.getRol() != Rol.REPARTIDOR || !nuevoRepartidor.getActivo() || !nuevoRepartidor.getDisponible()) {
+        if (nuevoRepartidor.getRol() != Rol.REPARTIDOR || !nuevoRepartidor.isActivo() || !nuevoRepartidor.isDisponible()) {
             throw new AppException("REPARTIDOR_NO_DISPONIBLE", "El nuevo repartidor no está disponible", HttpStatus.CONFLICT);
         }
 
-        // 1. Inactivar la asignación anterior
         asignacionActual.setActiva(false);
         asignacionRepository.save(asignacionActual);
 
-        // 2. Crear la nueva asignación
         Asignacion nuevaAsignacion = new Asignacion();
         nuevaAsignacion.setEnvio(envio);
         nuevaAsignacion.setRepartidor(nuevoRepartidor);
@@ -101,7 +101,6 @@ public class AsignacionService {
         nuevaAsignacion.setMotivo(request.motivo());
         asignacionRepository.save(nuevaAsignacion);
 
-        // 3. Escribir en el historial (La guía dice que la reasignación es el único caso donde se hace a mano)
         HistorialEstado historial = new HistorialEstado();
         historial.setEnvio(envio);
         historial.setEstadoAnterior(EstadoEnvio.ASIGNADO);
@@ -110,5 +109,41 @@ public class AsignacionService {
         historial.setDetalle("Reasignado de " + asignacionActual.getRepartidor().getNombre() +
                 " a " + nuevoRepartidor.getNombre() + ". Motivo: " + request.motivo());
         historialRepository.save(historial);
+    }
+
+    // ==========================================
+    // MÉTODOS GET DEL ADMINISTRADOR (Listados)
+    // ==========================================
+
+    public List<AdminEnvioResponse> listarEnviosAdmin(EstadoEnvio estadoFiltro) {
+        // Usamos el método de tu repositorio que ordena por fecha
+        List<Envio> envios = (estadoFiltro != null)
+                ? envioRepository.findByEstadoOrderByCreadoEnDesc(estadoFiltro)
+                : envioRepository.findAll();
+
+        return envios.stream().map(envio -> {
+            // Buscamos si el envío tiene una asignación activa en este momento
+            String nombreRepartidor = asignacionRepository.findByEnvioIdAndActivaTrue(envio.getId())
+                    .map(asig -> asig.getRepartidor().getNombre())
+                    .orElse(null); // Si no tiene, devuelve null
+
+            return new AdminEnvioResponse(
+                    envio.getId(),
+                    envio.getCodigo(),
+                    envio.getEstado(),
+                    envio.getDestinatario(),
+                    envio.getDireccionDestino(),
+                    envio.getCliente().getNombre(),
+                    nombreRepartidor
+            );
+        }).collect(Collectors.toList());
+    }
+
+    public List<RepartidorResponse> listarRepartidoresDisponibles() {
+        // OJO: Este método requiere que hayas agregado el findByRolAndActivoTrueAndDisponibleTrue al UsuarioRepository
+        return usuarioRepository.findByRolAndActivoTrueAndDisponibleTrue(Rol.REPARTIDOR)
+                .stream()
+                .map(u -> new RepartidorResponse(u.getId(), u.getNombre()))
+                .collect(Collectors.toList());
     }
 }

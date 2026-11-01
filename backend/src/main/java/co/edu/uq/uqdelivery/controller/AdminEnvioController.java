@@ -1,7 +1,7 @@
 package co.edu.uq.uqdelivery.controller;
 
-import co.edu.uq.uqdelivery.dto.AsignarRequest;
-import co.edu.uq.uqdelivery.dto.ReasignarRequest;
+import co.edu.uq.uqdelivery.dto.request.AsignarRequest;
+import co.edu.uq.uqdelivery.dto.request.ReasignarRequest;
 import co.edu.uq.uqdelivery.model.Usuario;
 import co.edu.uq.uqdelivery.service.AsignacionService;
 import jakarta.validation.Valid;
