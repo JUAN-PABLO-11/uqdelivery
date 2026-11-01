@@ -1,0 +1,204 @@
+.usuarios {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.usuarios-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.usuarios-encabezado h1 {
+  margin-bottom: 8px;
+}
+
+.usuarios-encabezado p {
+  margin: 0;
+}
+
+.usuarios-panel {
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.usuarios-panel h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.usuarios-formulario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.usuarios-formulario .campo {
+  min-width: 0;
+}
+
+.usuarios-formulario-acciones {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.usuarios-btn-secundario {
+  background: #fff;
+  color: var(--primario);
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.usuarios-btn-secundario:hover {
+  background: var(--primario-claro);
+}
+
+.usuarios-listado-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.usuarios-listado-encabezado h2 {
+  margin-bottom: 0;
+}
+
+.usuarios-filtro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.usuarios-filtro label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.usuarios-filtro select {
+  padding: 9px 10px;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  background: #fff;
+  font: inherit;
+}
+
+.usuarios-tabla-contenedor {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.usuarios-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.usuarios-tabla th,
+.usuarios-tabla td {
+  padding: 13px 12px;
+  border-bottom: 1px solid var(--borde);
+  vertical-align: middle;
+}
+
+.usuarios-tabla th {
+  background: var(--primario-claro);
+  color: var(--primario);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.usuarios-tabla td {
+  font-size: 14px;
+}
+
+.usuarios-rol {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 5px;
+  background: var(--primario-claro);
+  color: var(--primario);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.usuarios-estado {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.usuarios-estado.activo {
+  background: #e7f6ec;
+  color: #216e39;
+}
+
+.usuarios-estado.inactivo {
+  background: #fdecea;
+  color: #a93226;
+}
+
+.usuarios-acciones {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.usuarios-mensaje,
+.usuarios-alerta {
+  padding: 12px 14px;
+  border-radius: 6px;
+  margin: 0;
+}
+
+.usuarios-mensaje {
+  background: #e7f6ec;
+  color: #216e39;
+}
+
+.usuarios-alerta {
+  background: #fdecea;
+}
+
+@media (max-width: 700px) {
+  .usuarios-formulario {
+    grid-template-columns: 1fr;
+  }
+
+  .usuarios-formulario-acciones {
+    grid-column: auto;
+  }
+
+  .usuarios-panel {
+    padding: 16px;
+  }
+
+  .usuarios-listado-encabezado {
+    align-items: flex-start;
+  }
+
+  .usuarios-filtro {
+    width: 100%;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .usuarios-filtro select {
+    width: 100%;
+  }
+}
