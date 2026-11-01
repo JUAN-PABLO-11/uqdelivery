@@ -5,9 +5,11 @@ import co.edu.uq.uqdelivery.dto.request.CambiarRolRequest;
 import co.edu.uq.uqdelivery.dto.request.CrearUsuarioRequest;
 import co.edu.uq.uqdelivery.dto.response.UsuarioResponse;
 import co.edu.uq.uqdelivery.exception.AppException;
+import co.edu.uq.uqdelivery.model.Rol;
 import co.edu.uq.uqdelivery.model.Usuario;
 import co.edu.uq.uqdelivery.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,8 +26,15 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listar() {
-        return usuarioRepository.findAll()
+        return listar(null);
+    }
+
+    /** Lista los usuarios ordenados por nombre. Si llega un rol, filtra por ese rol. */
+    @Transactional(readOnly = true)
+    public List<UsuarioResponse> listar(Rol rol) {
+        return usuarioRepository.findAll(Sort.by("nombre"))
                 .stream()
+                .filter(u -> rol == null || u.getRol() == rol)
                 .map(UsuarioResponse::de)
                 .toList();
     }
@@ -110,10 +119,16 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioResponse desactivar(Long id, Usuario actor) {
+        return cambiarEstado(id, false, actor);
+    }
+
+    /** Activa o desactiva una cuenta. Un usuario desactivado no puede iniciar sesión. */
+    @Transactional
+    public UsuarioResponse cambiarEstado(Long id, boolean activo, Usuario actor) {
         Usuario usuario = buscar(id);
 
         // Evita que el administrador se desactive a sí mismo.
-        if (usuario.getId().equals(actor.getId())) {
+        if (!activo && usuario.getId().equals(actor.getId())) {
             throw new AppException(
                     "OPERACION_NO_PERMITIDA",
                     "No puedes desactivar tu propia cuenta",
@@ -121,7 +136,12 @@ public class UsuarioService {
             );
         }
 
-        usuario.setActivo(false);
+        usuario.setActivo(activo);
+        if (activo) {
+            // Al reactivar, se limpia cualquier bloqueo por intentos fallidos (HU-01)
+            usuario.setIntentosFallidos(0);
+            usuario.setBloqueadoHasta(null);
+        }
 
         return UsuarioResponse.de(
                 usuarioRepository.save(usuario)

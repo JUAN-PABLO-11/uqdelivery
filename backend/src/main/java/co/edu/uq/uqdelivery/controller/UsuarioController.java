@@ -1,9 +1,11 @@
 package co.edu.uq.uqdelivery.controller;
 
 import co.edu.uq.uqdelivery.dto.request.ActualizarUsuarioRequest;
+import co.edu.uq.uqdelivery.dto.request.CambiarEstadoUsuarioRequest;
 import co.edu.uq.uqdelivery.dto.request.CambiarRolRequest;
 import co.edu.uq.uqdelivery.dto.request.CrearUsuarioRequest;
 import co.edu.uq.uqdelivery.dto.response.UsuarioResponse;
+import co.edu.uq.uqdelivery.model.Rol;
 import co.edu.uq.uqdelivery.model.Usuario;
 import co.edu.uq.uqdelivery.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -21,9 +23,10 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
+    /** Filtro opcional: /admin/usuarios?rol=REPARTIDOR */
     @GetMapping
-    public List<UsuarioResponse> listar() {
-        return usuarioService.listar();
+    public List<UsuarioResponse> listar(@RequestParam(required = false) Rol rol) {
+        return usuarioService.listar(rol);
     }
 
     @PostMapping
@@ -49,6 +52,16 @@ public class UsuarioController {
             @AuthenticationPrincipal Usuario actor
     ) {
         return usuarioService.cambiarRol(id, request, actor);
+    }
+
+    /** Activa o desactiva la cuenta: { "activo": true | false } */
+    @PatchMapping("/{id}/estado")
+    public UsuarioResponse cambiarEstado(
+            @PathVariable Long id,
+            @Valid @RequestBody CambiarEstadoUsuarioRequest request,
+            @AuthenticationPrincipal Usuario actor
+    ) {
+        return usuarioService.cambiarEstado(id, request.activo(), actor);
     }
 
     @PatchMapping("/{id}/desactivar")

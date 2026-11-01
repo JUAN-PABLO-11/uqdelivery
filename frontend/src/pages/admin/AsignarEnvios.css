@@ -1,0 +1,8 @@
+/* HU-06: asignación de repartidores */
+.asignar > .exito, .asignar__error { margin-bottom: 12px; }
+.asignar__panel { margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px; border-color: var(--primario); }
+.asignar__panel h3 { margin: 0; color: var(--primario); }
+.asignar__panel p { margin: 0; }
+.asignar__campos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 12px; }
+.asignar__fecha { white-space: nowrap; color: var(--muted); }
+@media (max-width: 700px) { .asignar__campos { grid-template-columns: 1fr; } }

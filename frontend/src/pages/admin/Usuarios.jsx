@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import './Usuarios.css';
 
-import apiError, { leerError } from '../../api/client';
+import { leerError } from '../../api/client';
 import {
   listarUsuarios,
   crearUsuario,

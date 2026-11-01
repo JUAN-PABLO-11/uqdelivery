@@ -12,7 +12,7 @@ public record CrearNovedadRequest(
         TipoNovedad tipo,
 
         @NotNull(message = "La descripción es obligatoria")
-        @Size(min = 10, message = "La descripción debe tener al menos 10 caracteres")
+        @Size(min = 10, max = 500, message = "La descripción debe tener entre 10 y 500 caracteres")
         @SinHtml(message = "La descripción no puede contener HTML o scripts")
         String descripcion,
 

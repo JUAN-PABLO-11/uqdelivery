@@ -10,6 +10,7 @@ import co.edu.uq.uqdelivery.repository.AsignacionRepository;
 import co.edu.uq.uqdelivery.repository.EnvioRepository;
 import co.edu.uq.uqdelivery.repository.HistorialEstadoRepository;
 import co.edu.uq.uqdelivery.repository.UsuarioRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,17 +116,21 @@ public class AsignacionService {
     // MÉTODOS GET DEL ADMINISTRADOR (Listados)
     // ==========================================
 
+    /**
+     * readOnly = true: open-in-view está apagado, así que cliente, zona y repartidor (carga perezosa)
+     * solo se pueden leer dentro de una transacción.
+     */
+    @Transactional(readOnly = true)
     public List<AdminEnvioResponse> listarEnviosAdmin(EstadoEnvio estadoFiltro) {
-        // Usamos el método de tu repositorio que ordena por fecha
         List<Envio> envios = (estadoFiltro != null)
                 ? envioRepository.findByEstadoOrderByCreadoEnDesc(estadoFiltro)
-                : envioRepository.findAll();
+                : envioRepository.findAll(Sort.by(Sort.Direction.DESC, "creadoEn"));
 
         return envios.stream().map(envio -> {
-            // Buscamos si el envío tiene una asignación activa en este momento
-            String nombreRepartidor = asignacionRepository.findByEnvioIdAndActivaTrue(envio.getId())
-                    .map(asig -> asig.getRepartidor().getNombre())
-                    .orElse(null); // Si no tiene, devuelve null
+            // Repartidor de la asignación activa (null si aún no tiene)
+            Usuario repartidor = asignacionRepository.findByEnvioIdAndActivaTrue(envio.getId())
+                    .map(Asignacion::getRepartidor)
+                    .orElse(null);
 
             return new AdminEnvioResponse(
                     envio.getId(),
@@ -133,14 +138,17 @@ public class AsignacionService {
                     envio.getEstado(),
                     envio.getDestinatario(),
                     envio.getDireccionDestino(),
+                    envio.getZonaDestino() != null ? envio.getZonaDestino().getNombre() : null,
                     envio.getCliente().getNombre(),
-                    nombreRepartidor
+                    repartidor != null ? repartidor.getId() : null,
+                    repartidor != null ? repartidor.getNombre() : null,
+                    envio.getCreadoEn()
             );
         }).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<RepartidorResponse> listarRepartidoresDisponibles() {
-        // OJO: Este método requiere que hayas agregado el findByRolAndActivoTrueAndDisponibleTrue al UsuarioRepository
         return usuarioRepository.findByRolAndActivoTrueAndDisponibleTrue(Rol.REPARTIDOR)
                 .stream()
                 .map(u -> new RepartidorResponse(u.getId(), u.getNombre()))

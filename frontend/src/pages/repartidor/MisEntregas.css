@@ -1,0 +1,16 @@
+/* HU-06 / HU-10: entregas del repartidor (tarjetas, pensadas también para celular) */
+.entregas > .exito, .entregas__error { margin-bottom: 12px; }
+.entregas__vacio { margin: 0; }
+.entregas__lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+
+.entrega { background: #fff; border: 1px solid var(--borde); border-left: 4px solid var(--primario); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.entrega--asignado    { border-left-color: #5b3aa8; }
+.entrega--en_ruta     { border-left-color: #d68910; }
+.entrega--con_novedad { border-left-color: #c0392b; }
+
+.entrega__encabezado { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.entrega .codigo { font-family: ui-monospace, Menlo, monospace; font-weight: 600; }
+
+.entrega__datos { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: 14px; }
+.entrega__datos dt { color: var(--muted); }
+.entrega__datos dd { margin: 0; }
