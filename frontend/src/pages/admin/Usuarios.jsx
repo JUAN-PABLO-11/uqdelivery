@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import './usuarios.css';
+import './Usuarios.css';
 
 import apiError, { leerError } from '../../api/client';
 import {
