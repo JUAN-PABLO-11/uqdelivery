@@ -52,6 +52,9 @@
                     <annotationProcessorPaths>
                         <path><groupId>org.projectlombok</groupId><artifactId>lombok</artifactId><version>${lombok.version}</version></path>
                     </annotationProcessorPaths>
+                    <source>23</source>
+                    <target>23</target>
+                    <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
