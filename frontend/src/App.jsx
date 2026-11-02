@@ -10,7 +10,7 @@ import AsignarEnvios from './pages/admin/AsignarEnvios';
 import MisEnvios from './pages/cliente/MisEnvios';
 import NuevoEnvio from './pages/cliente/NuevoEnvio';
 import MisEntregas from './pages/repartidor/MisEntregas';
-import ReportarNovedad from "./pages/repartidor/ReportarNovedad";
+import ReportarNovedad from './pages/repartidor/ReportarNovedad';
 
 /**
  * TODAS las rutas quedan registradas aquí desde el Caso 00.
@@ -39,8 +39,8 @@ export default function App() {
 
       <Route path="/repartidor" element={<ProtectedRoute roles={['REPARTIDOR']}><MainLayout /></ProtectedRoute>}>
         <Route index element={<Navigate to="entregas" replace />} />
-        <Route path="entregas" element={<MisEntregas />} />
-          <Route path="entregas/:id/novedad" element={<ReportarNovedad />} />
+        <Route path="entregas" element={<MisEntregas />} />                        {/* HU-06 */}
+        <Route path="entregas/:id/novedad" element={<ReportarNovedad />} />        {/* HU-10 */}
       </Route>
 
       <Route path="*" element={<Navigate to={user ? rutaInicio(user.rol) : '/login'} replace />} />

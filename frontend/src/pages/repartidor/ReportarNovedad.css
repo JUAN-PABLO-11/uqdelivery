@@ -1,0 +1,10 @@
+/* HU-10: reporte de novedades */
+.novedad { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.novedad__volver { color: var(--primario); text-decoration: none; font-size: 14px; }
+.novedad__form { display: flex; flex-direction: column; gap: 14px; }
+.novedad__form h2 { margin-bottom: 4px; }
+.novedad__form p { margin: 0; }
+.novedad__alerta { background: #fdecea; border-radius: 6px; padding: 8px 10px; }
+.novedad__ayuda { display: flex; justify-content: space-between; gap: 8px; }
+.novedad__gps { font-size: 13px; padding: 8px 10px; border-radius: 6px; background: var(--fondo); color: var(--muted); }
+.novedad__gps--ok { background: #e8f5ec; color: #1e7b3c; }
