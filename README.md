@@ -93,7 +93,7 @@ git push -u origin feature/HU-04-crear-envio
 | HU-02 | `UsuarioController`, `UsuarioService` → `/api/v1/admin/usuarios` | `pages/admin/Usuarios.jsx`, `api/usuarios.js` |
 | HU-04 | `EnvioController`, `EnvioService` → `/api/v1/envios` | `pages/cliente/`, `api/envios.js` |
 | HU-05 | `CotizacionService` (+ `haversine`) → `/api/v1/envios/cotizar` | `pages/cliente/NuevoEnvio.jsx`, `api/cotizacion.js` |
-| HU-06 | `AsignacionController`, `AsignacionService` → `/api/v1/admin/envios/...` | `pages/admin/AsignarEnvios.jsx`, `pages/repartidor/`, `api/asignaciones.js` |
+| HU-06 | `AdminEnvioController`, `RepartidorController`, `AsignacionService`, `EntregaService` → `/api/v1/admin/envios/...`, `/api/v1/repartidor/entregas` | `pages/admin/AsignarEnvios.jsx`, `pages/repartidor/MisEntregas.jsx`, `api/asignaciones.js`, `api/entregas.js` |
 | HU-10 | `NovedadController`, `NovedadService` → `/api/v1/repartidor/envios/{id}/novedades` | `pages/repartidor/`, `api/novedades.js` |
 
 Todas las **rutas del frontend** y todas las **entidades** ya existen. Si necesitas cambiar una entidad compartida, avísale al equipo antes y hazlo en un PR aparte.
@@ -131,3 +131,4 @@ El CI (GitHub Actions) corre las pruebas del backend y el build del frontend en 
 ## 10. Documentación
 
 - `docs/GUIA_CASO_00.md`: guía técnica del Caso 00 (DER, máquina de estados, contrato de la API).
+- `docs/DER.md`: diagrama entidad-relación (Mermaid) generado a partir de las entidades JPA.
