@@ -8,7 +8,6 @@ import co.edu.uq.uqdelivery.exception.AppException;
 import co.edu.uq.uqdelivery.model.*;
 import co.edu.uq.uqdelivery.repository.AsignacionRepository;
 import co.edu.uq.uqdelivery.repository.EnvioRepository;
-import co.edu.uq.uqdelivery.repository.HistorialEstadoRepository;
 import co.edu.uq.uqdelivery.repository.UsuarioRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -24,16 +23,14 @@ public class AsignacionService {
     private final EnvioRepository envioRepository;
     private final UsuarioRepository usuarioRepository;
     private final AsignacionRepository asignacionRepository;
-    private final HistorialEstadoRepository historialRepository;
     private final EstadoService estadoService;
 
     public AsignacionService(EnvioRepository envioRepository, UsuarioRepository usuarioRepository,
-                             AsignacionRepository asignacionRepository, HistorialEstadoRepository historialRepository,
+                             AsignacionRepository asignacionRepository,
                              EstadoService estadoService) {
         this.envioRepository = envioRepository;
         this.usuarioRepository = usuarioRepository;
         this.asignacionRepository = asignacionRepository;
-        this.historialRepository = historialRepository;
         this.estadoService = estadoService;
     }
 
@@ -102,14 +99,10 @@ public class AsignacionService {
         nuevaAsignacion.setMotivo(request.motivo());
         asignacionRepository.save(nuevaAsignacion);
 
-        HistorialEstado historial = new HistorialEstado();
-        historial.setEnvio(envio);
-        historial.setEstadoAnterior(EstadoEnvio.ASIGNADO);
-        historial.setEstadoNuevo(EstadoEnvio.ASIGNADO);
-        historial.setActor(admin);
-        historial.setDetalle("Reasignado de " + asignacionActual.getRepartidor().getNombre() +
+        // Regla del equipo: el historial de la reasignación lo registra EstadoService
+        estadoService.registrarReasignacion(envio, admin,
+                "Reasignado de " + asignacionActual.getRepartidor().getNombre() +
                 " a " + nuevoRepartidor.getNombre() + ". Motivo: " + request.motivo());
-        historialRepository.save(historial);
     }
 
     // ==========================================

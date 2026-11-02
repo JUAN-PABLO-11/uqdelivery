@@ -6,7 +6,6 @@ import co.edu.uq.uqdelivery.exception.AppException;
 import co.edu.uq.uqdelivery.model.*;
 import co.edu.uq.uqdelivery.repository.AsignacionRepository;
 import co.edu.uq.uqdelivery.repository.EnvioRepository;
-import co.edu.uq.uqdelivery.repository.HistorialEstadoRepository;
 import co.edu.uq.uqdelivery.repository.UsuarioRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +28,6 @@ class AsignacionServiceTest {
     @Mock EnvioRepository envioRepository;
     @Mock UsuarioRepository usuarioRepository;
     @Mock AsignacionRepository asignacionRepository;
-    @Mock HistorialEstadoRepository historialRepository;
     @Mock EstadoService estadoService;
     @InjectMocks AsignacionService asignacionService;
 
@@ -129,10 +127,9 @@ class AsignacionServiceTest {
         assertEquals(diana, nueva.getRepartidor());
         assertTrue(nueva.isActiva());
 
-        ArgumentCaptor<HistorialEstado> historial = ArgumentCaptor.forClass(HistorialEstado.class);
-        verify(historialRepository).save(historial.capture());
-        assertEquals(admin, historial.getValue().getActor());
-        assertTrue(historial.getValue().getDetalle().contains("Carlos está incapacitado"));
+        ArgumentCaptor<String> detalle = ArgumentCaptor.forClass(String.class);
+        verify(estadoService).registrarReasignacion(eq(e), eq(admin), detalle.capture());
+        assertTrue(detalle.getValue().contains("Carlos está incapacitado"));
         assertEquals(EstadoEnvio.ASIGNADO, e.getEstado());
     }
 
